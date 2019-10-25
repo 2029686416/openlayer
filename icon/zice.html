@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <script src="../jquery-1.8.2.min.js"></script>
+	<script src="http://114.80.0.9:1234/geoserver/openlayers3/ol.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="http://114.80.0.9:1234/geoserver/openlayers3/ol.css" type="text/css">
+    <style type="text/css">  
+        
+    </style>
+   
+</head>
+<body>
+  <div id="map" class="map"></div>
+<script type="text/javascript">
+	
+	var source = new ol.source.Vector();
+	//矢量图层
+	var vector = new ol.layer.Vector({
+		source: source,
+		style: new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: 'rgba(255, 255, 255, 0.1)'
+			}),
+			stroke: new ol.style.Stroke({
+				color: 'red',
+				width: 2
+			})
+		})
+	});
+	//连线
+	var plygon = new ol.geom.LineString([[121.03554390458861, 37.669891510139436], [121.11097494636805, 37.683459130363184], [121.11997494636805, 37.713459130363184]]);
+	//多边形要素类
+	var feature = new ol.Feature({
+		geometry: plygon,
+	});
+	console.log(feature);
+	source.addFeature(feature);
+	
+	//北京地理坐标
+	var beijing = ol.proj.fromLonLat([121.13554390458861,37.699891510139436]);
+	var map = new ol.Map({
+		target: 'map',
+		layers: [
+			new ol.layer.Tile({
+			source: new ol.source.OSM()
+		  }),vector
+		],
+		view: new ol.View({
+			center: beijing,
+			zoom: 12
+		})
+	});
+	
+	//创建标签的样式
+            var createLabelStyle = function (feature) {
+                //返回一个样式
+                return new ol.style.Style({
+                    //把点的样式换成ICON图标
+                    image: new ol.style.Icon({
+                        //控制标注图片和文字之间的距离
+                        anchor: [0.5, 60],
+                        //标注样式的起点位置
+                        anchorOrigin: 'top-right',
+                        //X方向单位：分数
+                        anchorXUnits: 'fraction',
+                        //Y方向单位：像素
+                        anchorYUnits: 'pixels',
+                        //偏移起点位置的方向
+                        offsetOrigin: 'top-right',
+                        //透明度
+                        opacity: 0.75,
+                        //图片路径
+                        src: 'https://openlayers.org/en/v4.6.5/examples/data/icon.png'
+                    }),
+                    //文本样式
+                    text: new ol.style.Text({
+                        //对齐方式
+                        textAlign: 'center',
+                        //文本基线
+                        textBaseline: 'middle',
+                        //字体样式
+                        font: 'normal 14px 微软雅黑',
+                        //文本内容
+                        text: feature.get('name'),
+                        //填充样式
+                        fill: new ol.style.Fill({
+                            color: '#aa3300'
+                        }),
+                        //笔触
+                        stroke: new ol.style.Stroke({
+                            color: '#ffcc33',
+                            width: 2
+                        })
+                    })
+                });
+            };
+ 
+            //初始化要素
+            var iconFeature = new ol.Feature({
+                //点要素
+                geometry: new ol.geom.Point(beijing),
+                //名称属性
+                name: '北京市',
+                //人口属性
+                population: 2115
+            });
+            //为点要素添加样式
+            iconFeature.setStyle(createLabelStyle(iconFeature));
+ 
+            //初始化矢量数据源
+            var vectorSource = new ol.source.Vector({
+                //指定要素
+                features:[iconFeature]
+            });
+ 
+            //初始化矢量图层
+            var vectorLayer = new ol.layer.Vector({
+                //数据源
+                source:vectorSource
+            });
+            //将矢量图层添加到map中
+            map.addLayer(vectorLayer);
+</script>
+</body>
+</html>

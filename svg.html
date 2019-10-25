@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>map demo</title>
+    <link rel="stylesheet" href="js/ol.css" type="text/css">
+	<script src="js/ol.js" type="text/javascript"></script>
+    
+    <style>
+        html,
+        body,
+        #map{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+		#op{
+			height:20px;
+			width:50px;
+			border:1px solid red;
+		}
+    </style>
+</head>
+<body>
+
+<div id="map" style="width: 100%"></div>
+<script type="text/javascript">
+  var layer = new ol.layer.Vector({
+    source: new ol.source.Vector(),
+	style: new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: 'rgba(255, 255, 255, 0.1)'
+			}),
+			stroke: new ol.style.Stroke({
+				color: 'rgba(0, 119, 255, 1)',
+				width: 3
+			})
+		})
+  })
+  
+  var format= 'image/png';
+    var untiled = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+            ratio: 1,
+            url: 'http://114.80.0.9:1234/geoserver/wanhuayuan/wms',
+            params: {'FORMAT':  format,
+                'VERSION': '1.1.1',
+                STYLES: '',
+                LAYERS: 'wanhuayuan:GROUP_WanHuaYuan'
+            }
+        })
+    });
+    var format= 'image/png';var projection = new ol.proj.Projection({
+        code: 'EPSG:3857',
+        units: 'm',
+        axisOrientation: 'neu',
+        global: false
+    });
+	
+  var map = new ol.Map({
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      }), untiled,layer
+    ],
+    target: 'map',
+    view: new ol.View({
+      projection: 'EPSG:4326',
+      center: [121.078824000000,37.678330000000],
+      zoom: 13
+    })
+  });
+	
+	
+	//连线
+	var plygon = new ol.geom.LineString([[121.078824000000,37.678330000000],[121.064012000000,37.682723000000],[121.096786000000,37.685312000000], [121.096732000000,37.685259000000],[121.098732000000,37.695259000000],[121.106732000000,37.785259000000]]);
+	//多边形要素类
+	var feature = new ol.Feature({
+		geometry: plygon,
+	});
+	console.log(feature);
+	layer.getSource().addFeature(feature);
+
+//起点
+	var anchor = new ol.Feature({
+		geometry: new ol.geom.Point([121.078824000000,37.678330000000])
+	});
+	anchor.setStyle(new ol.style.Style({
+		image: new ol.style.Icon({
+			offset: [0, 0],
+			opacity: 1.0,
+			rotateWithView: true,
+			rotation: 0.0,
+			scale: 1.0,
+			size: [60, 40],
+			anchor: [0.1, 0],
+			anchorXUnits: 'fraction',
+			anchorYUnits: 'pixels',
+			src: 'image/origin.png'
+			
+			
+		})
+	}));
+	layer.getSource().addFeature(anchor);
+	
+//终点
+var anchorTwo = new ol.Feature({
+		geometry: new ol.geom.Point(['121.096732000000','37.685259000000'])
+	});
+
+	anchorTwo.setStyle(new ol.style.Style({
+		image: new ol.style.Icon({
+			src: 'image/terminal.png',
+	//          size: [30, 30]
+			anchor: [1, 1]    // 设置图标位置
+		})
+	}));
+	layer.getSource().addFeature(anchorTwo);
+	
+//圆	
+var anchorThree = new ol.Feature({
+		geometry: new ol.geom.Point([121.064012000000,37.682723000000])
+	});
+
+	anchorThree.setStyle(new ol.style.Style({
+		image: new ol.style.Icon({
+			src: 'image/yuan.png',
+	//          size: [30, 30]
+			imgSize: [20, 20],
+			anchor: [1, 1]    // 设置图标位置
+		})
+	}));
+	layer.getSource().addFeature(anchorThree);
+//小车	
+var anchorcar = new ol.Feature({
+		geometry: new ol.geom.Point([121.064012000000,37.682723000000])
+	});
+
+	anchorcar.setStyle(new ol.style.Style({
+		image: new ol.style.Icon({
+			src: 'image/car.png',
+	//          size: [30, 30]
+			imgSize: [20, 20],
+			anchor: [1, 1]    // 设置图标位置
+		})
+	}));
+	layer.getSource().addFeature(anchorcar);
+</script>
+
+</body>
+</html>

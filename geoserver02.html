@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>map demo</title>
+    <link rel="stylesheet" href="js/ol.css" type="text/css">
+	<script src="js/ol.js" type="text/javascript"></script>
+    
+    <style>
+        html,
+        body,
+        #map{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+		#op{
+			height:20px;
+			width:50px;
+			border:1px solid red;
+		}
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="anchor"><img src="https://openlayers.org/en/v4.6.5/examples/data/icon.png" alt="示例五角星"/></div>
+
+<script>
+	
+	var raster = new ol.layer.Tile({    
+		source: new ol.source.OSM()
+	});
+	
+    var format= 'image/png';
+    var untiled = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+            ratio: 1,
+            url: 'http://114.80.0.9:1234/geoserver/wanhuayuan/wms',
+            params: {'FORMAT':  format,
+                'VERSION': '1.1.1',
+                STYLES: '',
+                LAYERS: 'wanhuayuan:GROUP_WanHuaYuan'
+            }
+        })
+    });
+    var format= 'image/png';var projection = new ol.proj.Projection({
+        code: 'EPSG:3857',
+        units: 'm',
+        axisOrientation: 'neu',
+        global: false
+    });
+	
+	var source = new ol.source.Vector();
+	//矢量图层
+	var vector = new ol.layer.Vector({
+		source: source,
+		style: new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: 'rgba(255, 255, 255, 0.1)'
+			}),
+			stroke: new ol.style.Stroke({
+				color: 'red',
+				width: 2
+			})
+		})
+	});
+	//连线
+	var plygon = new ol.geom.LineString([[121.078824000000,37.678330000000],[121.064012000000,37.682723000000],[121.096786000000,37.685312000000], [121.096732000000,37.685259000000], [121.096786000000,37.685312000000],
+	[121.064012000000,37.682723000000],[121.078824000000,37.678330000000]]);
+	//多边形要素类
+	var feature = new ol.Feature({
+		geometry: plygon,
+	});
+	console.log(feature);
+	source.addFeature(feature);
+	
+	//分隔1
+	var view=new ol.View({
+		center:[121.078824000000,37.678330000000],
+		zoom: 13,
+		projection: "EPSG:4326"
+	});
+		
+    //var bounds = [13472606.7144771, 4530228.7563782865, 13484169.184178041, 4539025.905336271];
+    var map = new ol.Map({
+        controls: ol.control.defaults({
+            attribution: false
+        }).extend([]),
+        target: 'map',
+        layers: [//Layer有好几种类型的tile(瓦片地图),Image(图像),Vector(画点线等等需要的图层)	按顺序加载，第一个最低
+           raster, untiled, vector
+        ],
+        view: view
+    });
+	
+	// 下面把上面的图标附加到地图上，需要一个ol.Overlay
+	  var anchor = new ol.Overlay({
+		element: document.getElementById('anchor')
+	  });
+	  // 关键的一点，需要设置附加到地图上的位置
+	  anchor.setPosition([121.078824000000,37.678330000000]);
+	  // 然后添加到map上
+	  map.addOverlay(anchor);
+	
+	// 让地图最大化完全地显示区域bounds
+    //map.getView().fit(bounds, map.getSize());
+	
+	
+  
+</script>
+
+</body>
+</html>
